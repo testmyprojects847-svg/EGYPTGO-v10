@@ -65,6 +65,7 @@ export function UserMenu() {
             </>
           ) : (
             <>
+              <MenuLink href={routes.dashboard} icon={LayoutDashboard} label={t('dashboard')} onNavigate={() => setOpen(false)} />
               <MenuLink href={`${routes.dashboard}?section=trips`} icon={Briefcase} label={t('myTrips')} onNavigate={() => setOpen(false)} />
               <MenuLink href={`${routes.dashboard}?section=profile`} icon={UserRound} label={t('myProfile')} onNavigate={() => setOpen(false)} />
               <MenuLink href={`${routes.dashboard}?section=settings`} icon={Settings} label={t('settings')} onNavigate={() => setOpen(false)} />
