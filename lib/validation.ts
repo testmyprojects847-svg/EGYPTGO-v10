@@ -25,10 +25,11 @@ export function validateRegistration(
   return null
 }
 
-export function validateBooking(travelers: number, date: string, locale: Locale = 'en', maxTravelers = MAX_TRAVELERS): string | null {
+export function validateBooking(travelers: number, date: string, locale: Locale = 'en', maxTravelers = MAX_TRAVELERS, countryCode?: string): string | null {
   if (!Number.isInteger(travelers) || travelers < 1 || travelers > maxTravelers)
     return locale === 'ar' ? `عدد المسافرين بين 1 و ${maxTravelers}.` : `Travelers must be between 1 and ${maxTravelers}.`
   if (!date) return locale === 'ar' ? 'اختر تاريخ الرحلة.' : 'Select a travel date.'
+  if (!countryCode) return locale === 'ar' ? 'اختر دولتك.' : 'Select your country.'
   const selected = new Date(`${date}T00:00:00`)
   const today = new Date(); today.setHours(0, 0, 0, 0)
   if (Number.isNaN(selected.getTime()) || selected < today) return locale === 'ar' ? 'اختر تاريخاً مستقبلياً.' : 'Choose a future travel date.'

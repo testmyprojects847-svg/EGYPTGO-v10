@@ -16,6 +16,9 @@ export interface Booking {
   customerEmail: string
   phone?: string
   destination?: string
+  countryCode?: string
+  countryNameAr?: string
+  countryNameEn?: string
   saved?: number
   unitPrice?: number
   total: number

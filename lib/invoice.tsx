@@ -107,6 +107,7 @@ export async function downloadInvoice(booking: Booking, _locale: Locale) {
   section('Customer details')
   row('Name', booking.customerName)
   row('Email', booking.customerEmail)
+  row('Country', booking.countryNameEn ?? booking.countryCode ?? 'Not provided')
   row('Phone', booking.phone ?? 'Not provided')
   divider()
 

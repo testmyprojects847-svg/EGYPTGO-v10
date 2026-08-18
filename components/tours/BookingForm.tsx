@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Check, MapPin } from 'lucide-react'
+import { Check, ChevronDown, MapPin, Search } from 'lucide-react'
+import { countries, searchCountries, type Country } from '@/data/countries'
 import { useBookings } from '@/hooks/useBookings'
 import { useLanguage } from '@/hooks/useLanguage'
 import { calculateTourTotal, formatAmount } from '@/lib/currency'
@@ -16,6 +17,9 @@ export function BookingForm({ tour }: { tour: Tour }) {
   const { create } = useBookings()
   const [travelers, setTravelers] = useState(1)
   const [date, setDate] = useState('')
+  const [country, setCountry] = useState<Country | null>(null)
+  const [countryQuery, setCountryQuery] = useState('')
+  const [countryOpen, setCountryOpen] = useState(false)
   const [error, setError] = useState('')
   const [booking, setBooking] = useState<ReturnType<typeof create> | null>(null)
   const price = calculateTourTotal(tour, travelers, locale)
@@ -80,9 +84,9 @@ export function BookingForm({ tour }: { tour: Tour }) {
         className="mt-6 grid gap-4 sm:grid-cols-2"
         onSubmit={(event) => {
           event.preventDefault()
-          const message = validateBooking(travelers, date, locale, max)
+          const message = validateBooking(travelers, date, locale, max, country?.code)
           if (message) return setError(message)
-          setBooking(create(tour, date, travelers, locale))
+          setBooking(create(tour, date, travelers, locale, country as Country))
         }}
       >
         <label className="block">
@@ -117,6 +121,18 @@ export function BookingForm({ tour }: { tour: Tour }) {
             className="w-full rounded-xl border border-border bg-background px-3 py-3 text-xs"
           />
         </label>
+
+        <div className="relative sm:col-span-2">
+          <span className="mb-2 block text-xs font-semibold">{locale === 'ar' ? 'الدولة' : 'Country'} <span className="font-normal text-muted-foreground">*</span></span>
+          <button type="button" aria-expanded={countryOpen} onClick={() => setCountryOpen((open) => !open)} className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3 py-3 text-start text-xs">
+            <span className={country ? 'text-foreground' : 'text-muted-foreground'}>{country ? (locale === 'ar' ? country.nameAr : country.nameEn) : (locale === 'ar' ? 'ابحث واختر دولتك' : 'Search and select your country')}</span>
+            <ChevronDown className="size-4 text-muted-foreground" />
+          </button>
+          {countryOpen && <div className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+            <div className="flex items-center gap-2 border-b border-border px-3"><Search className="size-4 text-muted-foreground" /><input autoFocus value={countryQuery} onChange={(event) => setCountryQuery(event.target.value)} placeholder={locale === 'ar' ? 'اكتب اسم الدولة...' : 'Type a country name...'} className="w-full bg-transparent py-3 text-xs outline-none" /></div>
+            <div className="max-h-60 overflow-y-auto p-1">{searchCountries(countryQuery, locale).map((item) => <button key={item.code} type="button" onClick={() => { setCountry(item); setCountryQuery(''); setCountryOpen(false); setError('') }} className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-start text-xs hover:bg-muted"><span>{locale === 'ar' ? item.nameAr : item.nameEn}</span><span className="text-[10px] text-muted-foreground">{locale === 'ar' ? item.nameEn : item.nameAr}</span></button>)}{searchCountries(countryQuery, locale).length === 0 && <p className="px-3 py-4 text-center text-xs text-muted-foreground">{locale === 'ar' ? 'لا توجد نتائج' : 'No countries found'}</p>}</div>
+          </div>}
+        </div>
 
         <div className="mt-6 border-t border-border pt-6 sm:col-span-2">
           <h2 className="text-sm font-bold">{locale === 'ar' ? 'ملخص الحجز' : 'Reservation summary'}</h2>

@@ -18,9 +18,9 @@ export function useBookings() {
   const mine = user ? bookings.filter((booking) => booking.customerEmail === user.email) : []
 
   const create = useCallback(
-    (tour: Tour, date: string, travelers: number, locale: Locale = 'en') => {
+    (tour: Tour, date: string, travelers: number, locale: Locale = 'en', country: { code: string; nameAr: string; nameEn: string }) => {
       const customer = { name: user?.name ?? 'Guest', email: user?.email ?? 'guest@egyptgo.com' }
-      const booking = bookingService.create(tour, customer, date, travelers, locale)
+      const booking = bookingService.create(tour, customer, date, travelers, locale, country)
       setBookings(bookingService.list())
       return booking
     },
