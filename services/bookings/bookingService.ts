@@ -4,6 +4,7 @@ import { createId } from '@/lib/utils'
 import { storageService } from '../storage/storageService'
 import { STORAGE_KEYS } from '../storage/storageKeys'
 import type { Booking, BookingStatus, Locale, Tour, User } from '@/types'
+import type { Country } from '@/data/countries'
 
 function makeReference() {
   const year = new Date().getFullYear()
@@ -16,7 +17,7 @@ export const bookingService = {
     return storageService.get<Booking[]>(STORAGE_KEYS.bookings, seedBookings).map((booking) => ({ ...booking, reference: booking.reference ?? booking.id }))
   },
   listForUser(email: string) { return bookingService.list().filter((booking) => booking.customerEmail === email) },
-  create(tour: Tour, user: Pick<User, 'name' | 'email'>, date: string, travelers: number, locale: Locale = 'en'): Booking {
+  create(tour: Tour, user: Pick<User, 'name' | 'email'> & { phone: string; phoneCountryCode: string }, date: string, travelers: number, locale: Locale = 'en', country?: Country): Booking {
     const selected = calculateTourTotal(tour, travelers, locale)
     const booking: Booking = {
       id: createId('b'), reference: makeReference(), tourId: tour.id,
@@ -24,7 +25,8 @@ export const bookingService = {
       tourDuration: `${tour.days} ${tour.days === 1 ? 'day' : 'days'}${tour.nights ? ` / ${tour.nights} nights` : ''}`,
       meetingPoint: locale === 'ar' ? tour.meetingPointAr ?? tour.meetingPoint : tour.meetingPoint,
       cancellationPolicy: locale === 'ar' ? tour.cancellationAr ?? tour.cancellation : tour.cancellation,
-      date, travelers, customerName: user.name, customerEmail: user.email,
+      date, travelers, customerName: user.name, customerEmail: user.email, phone: user.phone, phoneCountryCode: user.phoneCountryCode,
+      countryCode: country?.code, countryNameAr: country?.nameAr, countryNameEn: country?.nameEn,
       unitPrice: selected.current, total: selected.total, currency: selectCurrency(locale), locale,
       status: 'pending', createdAt: new Date().toISOString(),
     }
@@ -41,8 +43,8 @@ export const bookingService = {
 }
 
 export function exportBookingsCsv(bookings: Booking[]) {
-  const header = ['Reference', 'Customer', 'Email', 'Tour', 'Date', 'Travelers', 'Total', 'Currency', 'Status']
-  const rows = bookings.map((b) => [b.reference ?? b.id, b.customerName, b.customerEmail, b.tourTitle, b.date, b.travelers, b.total, b.currency ?? 'USD', b.status])
+  const header = ['Reference', 'Customer', 'Email', 'Phone', 'Country', 'Tour', 'Date', 'Travelers', 'Total', 'Currency', 'Status']
+  const rows = bookings.map((b) => [b.reference ?? b.id, b.customerName, b.customerEmail, `${b.phoneCountryCode ?? ''} ${b.phone ?? ''}`.trim(), b.countryNameEn ?? b.countryCode ?? '', b.tourTitle, b.date, b.travelers, b.total, b.currency ?? 'USD', b.status])
   return [header, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n')
 }
 
