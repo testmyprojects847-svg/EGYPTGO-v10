@@ -108,7 +108,7 @@ export async function downloadInvoice(booking: Booking, _locale: Locale) {
   row('Name', booking.customerName)
   row('Email', booking.customerEmail)
   row('Country', booking.countryNameEn ?? booking.countryCode ?? 'Not provided')
-  row('Phone', booking.phone ?? 'Not provided')
+  row('Phone', booking.phone ? `${booking.phoneCountryCode ?? ''} ${booking.phone}`.trim() : 'Not provided')
   divider()
 
   section('Trip details')

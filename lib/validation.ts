@@ -25,7 +25,12 @@ export function validateRegistration(
   return null
 }
 
-export function validateBooking(travelers: number, date: string, locale: Locale = 'en', maxTravelers = MAX_TRAVELERS, countryCode?: string): string | null {
+export function validateBooking(travelers: number, date: string, locale: Locale = 'en', maxTravelers = MAX_TRAVELERS, countryCode?: string, name?: string, email?: string, phone?: string): string | null {
+  if (!name?.trim()) return locale === 'ar' ? 'أدخل اسمك الكامل.' : 'Enter your full name.'
+  if (!email || !isEmail(email)) return locale === 'ar' ? 'أدخل بريداً إلكترونياً صحيحاً.' : 'Enter a valid email address.'
+  if (!countryCode) return locale === 'ar' ? 'اختر رمز دولة الهاتف.' : 'Select a phone country code.'
+  const normalizedPhone = phone?.replace(/[\s()-]/g, '') ?? ''
+  if (!/^\d{6,15}$/.test(normalizedPhone)) return locale === 'ar' ? 'أدخل رقم هاتف صحيحاً.' : 'Enter a valid phone number.'
   if (!Number.isInteger(travelers) || travelers < 1 || travelers > maxTravelers)
     return locale === 'ar' ? `عدد المسافرين بين 1 و ${maxTravelers}.` : `Travelers must be between 1 and ${maxTravelers}.`
   if (!date) return locale === 'ar' ? 'اختر تاريخ الرحلة.' : 'Select a travel date.'

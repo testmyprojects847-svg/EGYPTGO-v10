@@ -15,6 +15,7 @@ export interface Booking {
   customerName: string
   customerEmail: string
   phone?: string
+  phoneCountryCode?: string
   destination?: string
   countryCode?: string
   countryNameAr?: string
