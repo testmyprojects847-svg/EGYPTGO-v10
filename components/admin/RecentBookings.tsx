@@ -1,0 +1,12 @@
+'use client'
+
+import Link from 'next/link'
+import { ArrowUpRight, CalendarDays, MoreHorizontal, UsersRound } from 'lucide-react'
+import { bookingService } from '@/services/bookings/bookingService'
+import { tourService } from '@/services/tours/tourService'
+import { useCurrency } from '@/hooks/useCurrency'
+
+export function RecentBookings() {
+  const { format } = useCurrency(); const bookings = bookingService.list().slice(0, 5); const tours = tourService.list()
+  return <section className="rounded-2xl border border-border bg-card p-5 shadow-sm"><div className="mb-5 flex items-center justify-between"><div><p className="text-xs font-semibold uppercase tracking-widest text-accent">Live activity</p><h2 className="mt-1 text-lg font-bold">Recent bookings</h2></div><Link href="/admin?tab=bookings" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-accent">View all <ArrowUpRight className="size-3" /></Link></div>{bookings.length === 0 ? <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">No bookings yet</div> : <div className="flex flex-col gap-3">{bookings.map((booking) => { const tour = tours.find((item) => item.id === booking.tourId); return <div key={booking.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-border p-3 transition hover:bg-muted/50"><div className="flex size-10 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">{booking.customerName.slice(0, 2).toUpperCase()}</div><div className="min-w-32 flex-1"><p className="text-sm font-semibold">{booking.customerName}</p><p className="text-xs text-muted-foreground">{booking.customerEmail}</p></div><div className="hidden min-w-40 items-center gap-2 md:flex"><img src={tour?.image} alt="" className="size-8 rounded-lg object-cover" /><p className="max-w-32 truncate text-xs font-medium">{booking.tourTitle}</p></div><div className="flex items-center gap-1 text-xs text-muted-foreground"><CalendarDays className="size-3" />{booking.date}</div><div className="flex items-center gap-1 text-xs text-muted-foreground"><UsersRound className="size-3" />{booking.travelers}</div><p className="text-sm font-bold">{format(booking.total)}</p><span className="rounded-full bg-secondary px-2.5 py-1 text-[10px] font-bold text-secondary-foreground">{booking.status}</span><button aria-label="More booking options" className="rounded-lg p-2 hover:bg-muted"><MoreHorizontal className="size-4" /></button></div>})}</div>}</section>
+}
